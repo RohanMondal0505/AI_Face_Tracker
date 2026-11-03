@@ -1,33 +1,19 @@
 """Stateful face tracking shared by browser sessions (no webcam side effects)."""
 
 import time
-from pathlib import Path
-from typing import TypedDict
 
 import cv2
 import mediapipe as mp
 import numpy as np
 
-MODEL_PATH = Path(__file__).resolve().parent / "models" / "face_landmarker.task"
-BLINK_THRESHOLD = 0.50
-MIN_CLOSED_FRAMES = 2
-CALIBRATION_FRAMES = 30
-MOVEMENT_THRESHOLD = 0.12
-
-
-class LandmarkPoint(TypedDict):
-    x: float
-    y: float
-
-
-class TrackingResult(TypedDict):
-    type: str
-    face_detected: bool
-    blink_count: int
-    eye_status: str
-    head_status: str
-    calibration_progress: float
-    landmarks: list[LandmarkPoint]
+from ..config import (
+    MODEL_PATH,
+    BLINK_THRESHOLD,
+    MIN_CLOSED_FRAMES,
+    CALIBRATION_FRAMES,
+    MOVEMENT_THRESHOLD,
+)
+from ..schemas.tracking import LandmarkPoint, TrackingResult
 
 
 class FaceTracker:

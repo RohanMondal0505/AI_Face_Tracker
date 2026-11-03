@@ -4,8 +4,19 @@ Next.js webcam frontend connected to a Python / MediaPipe backend over WebSocket
 
 ```text
 backend/
-  main.py                 FastAPI server and WebSocket endpoint
-  face_tracker.py         Per-session blink and head tracking
+  __init__.py
+  main.py                 Create the app and register routers
+  config.py               Model path, allowed origins, tracking thresholds
+  routers/
+    __init__.py
+    health.py             GET /health
+    tracking.py           WebSocket /ws/track and connection lifecycle
+  schemas/
+    __init__.py
+    tracking.py           Typed landmark and tracking response dictionaries
+  services/
+    __init__.py
+    face_tracker.py       MediaPipe processing, blink counting, calibration
   models/face_landmarker.task
   requirements.txt
 frontend/
@@ -46,6 +57,18 @@ clears the blink count and recalibrates. **Stop tracking** closes the connection
 releases the camera. Each new connection starts a fresh session.
 
 The backend health check is http://localhost:8000/health.
+
+## Backend organization
+
+`main.py` registers the routers. Routers handle incoming messages and outgoing
+responses; the tracking service handles model inference and session state.
+Schemas describe the outgoing dictionary fields using `TypedDict` for static
+type checking (they do not perform runtime validation). Shared configuration lives
+in `config.py`, which resolves the model path relative to the backend directory.
+
+The URLs and frontend message format remain `/health` and `/ws/track`.
+To add an endpoint, create a router in `backend/routers/` and register it with
+`app.include_router(...)` in `main.py`.
 
 ## How it connects
 
